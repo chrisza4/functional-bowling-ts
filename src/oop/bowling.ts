@@ -5,9 +5,10 @@ export class BowlingGame {
   getScore(): number {
     let totalScore = 0
     for (const index in this.game) {
+      const indexInt = parseInt(index)
       const thisFrame = this.game[index]
-      const nextFrame = this.game[parseInt(index) + 1]
-      const nextNextFrame = this.game[parseInt(index) + 2]
+      const nextFrame = this.game[indexInt + 1]
+      const nextNextFrame = this.game[indexInt + 2]
       totalScore += FrameFactory.getFrame(thisFrame, [
         nextFrame,
         nextNextFrame,

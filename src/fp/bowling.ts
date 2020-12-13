@@ -36,8 +36,7 @@ export function getFrameScore(
   // such as Scala: We can declare case class for strike
   switch (getFrameType(frame)) {
     case FrameType.LastFrame:
-      const lastFrame = frame as BowlingType.LastFrame // Should have better way
-      return lastFrame[0] + lastFrame[1] + (lastFrame[2] || 0)
+      return frame[0] + frame[1] + (frame[2] || 0)
     case FrameType.Score:
       return frame[0] + frame[1]
     case FrameType.Spare:

@@ -9,13 +9,7 @@ enum FrameType {
 
 export function getScore(game: BowlingType.Game): number {
   return game.reduce((acc, currentFrame, i) => {
-    return (
-      acc +
-      getFrameScore(currentFrame, {
-        firstFrame: game[i + 1],
-        secondFrame: game[i + 2],
-      })
-    )
+    return acc + getFrameScore(currentFrame, [game[i + 1], game[i + 2]])
   }, 0)
 }
 
@@ -25,24 +19,17 @@ export function getFrameScore(
 ): number {
   const getFrameType = (frame: BowlingType.Frame): FrameType => {
     switch (true) {
-      case 'third' in frame:
+      case frame.length === 3:
         return FrameType.LastFrame
-      case frame.first === 10:
+      case frame[0] === 10:
         return FrameType.Strike
-      case frame.second + frame.first === 10:
+      case frame[0] + frame[1] === 10:
         return FrameType.Spare
       default:
         return FrameType.Score
     }
   }
-  const getNextRoll = () =>
-    'third' in frame ? frame.third : nextFrames.firstFrame.first
-  const getNextNextRoll = () => {
-    if (nextFrames.firstFrame.second === null) {
-      return nextFrames.secondFrame.first
-    }
-    return nextFrames.firstFrame.second
-  }
+  const nextRolls = getNextRolls(nextFrames)
 
   // Should be better with Pattern Matching
   // such as Elixir: def getScore(%{ first: 10, second: null }) do = Strike
@@ -50,13 +37,19 @@ export function getFrameScore(
   switch (getFrameType(frame)) {
     case FrameType.LastFrame:
       const lastFrame = frame as BowlingType.LastFrame // Should have better way
-      return lastFrame.first + lastFrame.second + (lastFrame.third || 0)
+      return lastFrame[0] + lastFrame[1] + (lastFrame[2] || 0)
     case FrameType.Score:
-      return frame.first + frame.second
+      return frame[0] + frame[1]
     case FrameType.Spare:
-      return frame.first + frame.second + getNextRoll()
+      return frame[0] + frame[1] + nextRolls[0]
     case FrameType.Strike: {
-      return frame.first + getNextRoll() + getNextNextRoll()
+      return frame[0] + nextRolls[0] + nextRolls[1]
     }
   }
+}
+
+function getNextRolls(nextFrames: BowlingType.NextFrames): number[] {
+  const nextFirstFrame = nextFrames[0] || []
+  const nextSecoundFrame = nextFrames[1] || []
+  return [...nextFirstFrame, ...nextSecoundFrame].filter((c) => c !== null)
 }
